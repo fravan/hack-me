@@ -12,14 +12,14 @@ export function DeskIdleRow({ desk, setState }: DeskRowProps) {
       <TableCell style={{ width: '80px' }}>
         <div className="flex flex-row items-center space-x-4">
           <ButtonIcon
-            title="Edit"
+            title={`Edit ${desk.name}`}
             onClick={() => setState(DeskRowState.Editing)}
           >
             <EditIcon />
           </ButtonIcon>
 
           <ButtonIcon
-            title="Delete"
+            title={`Delete ${desk.name}`}
             onClick={() => setState(DeskRowState.Deleting)}
           >
             <DeleteIcon />

@@ -1,42 +1,26 @@
-import { v4 as uuidv4 } from 'uuid'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { Desk } from './desk.model'
 import { delay } from '../common/delay'
+import { DeskController, DeskInput } from './desk.controller'
 
-let desks: Desk[] = [
-  { id: uuidv4(), uniqueNumber: 42, name: 'The answer' },
-  { id: uuidv4(), uniqueNumber: 47, name: 'The agent' },
-  { id: uuidv4(), uniqueNumber: 404, name: 'The invisible' },
-]
-
-export type DeskInput = Omit<Desk, 'id'>
+const deskController = new DeskController()
+deskController.addDesk({ uniqueNumber: 42, name: 'The answer' })
+deskController.addDesk({ uniqueNumber: 47, name: 'The agent' })
+deskController.addDesk({ uniqueNumber: 404, name: 'The invisible' })
 
 async function getDesks(): Promise<Desk[]> {
   await delay(500)
-  return desks
+  return deskController.getDesks()
 }
 
 async function deleteDesk(id: string): Promise<void> {
   await delay(1234)
-  desks = desks.filter(d => d.id !== id)
-}
-
-function checkDeskNumberUniqueness(uniqueNumber: number, id?: string) {
-  const deskWithSameUniqueNumber = desks.find(
-    d => d.uniqueNumber === uniqueNumber,
-  )
-  if (deskWithSameUniqueNumber != null && deskWithSameUniqueNumber.id !== id) {
-    throw new Error(
-      `Unique number ${uniqueNumber} is already taken by desk ${deskWithSameUniqueNumber.name}`,
-    )
-  }
+  deskController.removeDesk(id)
 }
 
 async function addDesk(payload: DeskInput): Promise<Desk[]> {
   await delay(765)
-  checkDeskNumberUniqueness(payload.uniqueNumber)
-  desks.push({ ...payload, id: uuidv4() })
-  return desks
+  return deskController.addDesk(payload)
 }
 
 interface EditDeskVariables {
@@ -46,17 +30,7 @@ interface EditDeskVariables {
 
 async function editDesk({ id, payload }: EditDeskVariables): Promise<Desk[]> {
   await delay(1234)
-  checkDeskNumberUniqueness(payload.uniqueNumber, id)
-
-  const idx = desks.findIndex(d => d.id === id)
-  if (idx === -1) {
-    desks.push({ ...payload, id: uuidv4() })
-  } else {
-    const desk = desks[idx]
-    desk.name = payload.name
-    desk.uniqueNumber = payload.uniqueNumber
-  }
-  return desks
+  return deskController.editDesk(id, payload)
 }
 
 export function useDesksQuery() {
