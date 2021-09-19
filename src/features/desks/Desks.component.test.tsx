@@ -6,14 +6,28 @@ import {
 } from '@testing-library/react'
 import { Desks } from './Desks.component'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { useDeskController } from './desk.controller'
 
 function setup() {
   const queryClient = new QueryClient()
 
-  const wrapper = ({ children }: any) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  )
-  return render(<Desks />, { wrapper })
+  const Wrapper = ({ children }: any) => {
+    // We need to clear our controller from previous tests.
+    // normally we would use before/afterEach for that, but
+    // the controller is behind a hook, so we do that in our wrapper
+    const deskController = useDeskController()
+    React.useEffect(() => {
+      deskController.getDesks().forEach(d => deskController.removeDesk(d.id))
+
+      deskController.addDesk({ uniqueNumber: 42, name: 'The answer' })
+      deskController.addDesk({ uniqueNumber: 47, name: 'The agent' })
+      deskController.addDesk({ uniqueNumber: 404, name: 'The invisible' })
+    }, [deskController])
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    )
+  }
+  return render(<Desks />, { wrapper: Wrapper })
 }
 
 async function setupWithLoadedDesks() {
@@ -34,7 +48,7 @@ test('Desks page shows a friendly title while loading desks', async () => {
   await waitForElementToBeRemoved(loadingElement)
 })
 
-test('Desks page allow to create a new desk', async () => {
+test('Desks page allows to create a new desk', async () => {
   const result = await setupWithLoadedDesks()
 
   // We expect a button to add a new desk
@@ -60,12 +74,35 @@ test('Desks page allow to create a new desk', async () => {
   expect(desk).toBeInTheDocument()
 })
 
-// This is very similar to the create desk test and is skipped for now
-test.skip('Desks page allow to edit a desk', () => {})
+test('Desks page allows to edit a desk', async () => {
+  const result = await setupWithLoadedDesks()
+
+  // We expect a button to edit "the answer" desk
+  const button = result.getByTitle(/edit the answer/i)
+  expect(button).toBeInTheDocument()
+  fireEvent.click(button)
+
+  // Once clicked, we expect 2 inputs to create our new desk:
+  // name, and unique number
+  const nameInput = result.getByDisplayValue(/the answer/i)
+  const deskName = 'the answer updated'
+  fireEvent.change(nameInput, { target: { value: deskName } })
+
+  // Once we filled the form, we click the validate button
+  // and wait for our desk to be updated
+  const validateButton = result.getByTitle(/validate/i)
+  fireEvent.click(validateButton)
+  await waitForElementToBeRemoved(validateButton)
+
+  const desk = await result.findByText(deskName)
+  expect(desk).toBeInTheDocument()
+  expect(result.getByTitle(/edit the answer updated/i)).toBeInTheDocument()
+})
+
 // Again, this is not complicated, after validating we wait for the warning to be shown
 test.skip('Desks page disables creating or editing a desk with an already used unique number', () => {})
 
-test('Desks page allow to delete a desk', async () => {
+test('Desks page allows to delete a desk', async () => {
   const result = await setupWithLoadedDesks()
 
   // We know the have a desk named "the answer"

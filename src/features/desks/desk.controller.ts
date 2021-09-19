@@ -3,8 +3,21 @@ import { Desk } from './desk.model'
 
 export type DeskInput = Omit<Desk, 'id'>
 
-export class DeskController {
+export interface IDeskController {
+  getDesks(): Desk[]
+  removeDesk(id: string): void
+  addDesk(payload: DeskInput): Desk[]
+  editDesk(id: string, payload: DeskInput): Desk[]
+}
+
+class DeskController implements IDeskController {
   private desks: Desk[] = []
+
+  constructor() {
+    this.addDesk({ uniqueNumber: 42, name: 'The answer' })
+    this.addDesk({ uniqueNumber: 47, name: 'The agent' })
+    this.addDesk({ uniqueNumber: 404, name: 'The invisible' })
+  }
 
   getDesks() {
     return this.desks
@@ -47,4 +60,10 @@ export class DeskController {
       )
     }
   }
+}
+
+const deskController = new DeskController()
+
+export function useDeskController(): IDeskController {
+  return deskController
 }
