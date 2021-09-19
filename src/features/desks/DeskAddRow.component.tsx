@@ -8,6 +8,7 @@ import {
 } from '../presentation/Icons.component'
 import { TableCell } from '../presentation/TableCell.component'
 import { useDeskAddMutation } from './desk.queries'
+import { DeskEditErrorRow } from './DeskEditErrorRow.component'
 
 interface DeskAddRowProps {
   onCancelled: () => void
@@ -68,13 +69,7 @@ export function DeskAddRow({ onCancelled }: DeskAddRowProps) {
           </div>
         </TableCell>
       </tr>
-      {mutation.isError && (
-        <tr>
-          <TableCell className="bg-warning/20 text-warning" colSpan={3}>
-            {mutation.error.message}
-          </TableCell>
-        </tr>
-      )}
+      <DeskEditErrorRow mutation={mutation} />
     </>
   )
 }

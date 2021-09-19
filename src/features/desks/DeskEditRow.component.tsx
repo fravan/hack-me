@@ -9,6 +9,7 @@ import {
 import { TableCell } from '../presentation/TableCell.component'
 import { useDeskEditMutation } from './desk.queries'
 import { DeskRowProps, DeskRowState } from './DeskRow.props'
+import { DeskEditErrorRow } from './DeskEditErrorRow.component'
 
 export function DeskEditRow({ desk, setState }: DeskRowProps) {
   const [name, setName] = React.useState(desk.name)
@@ -69,13 +70,7 @@ export function DeskEditRow({ desk, setState }: DeskRowProps) {
           </div>
         </TableCell>
       </tr>
-      {mutation.isError && (
-        <tr>
-          <TableCell className="bg-warning/20 text-warning" colSpan={3}>
-            {mutation.error.message}
-          </TableCell>
-        </tr>
-      )}
+      <DeskEditErrorRow mutation={mutation} />
     </>
   )
 }

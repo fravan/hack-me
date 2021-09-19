@@ -8,6 +8,24 @@ import { Desks } from './Desks.component'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { useDeskController } from './desk.controller'
 
+/**
+ * TODO: Remove duplication once everything is settled.
+ *
+ * I did not go full TDD, the flow was:
+ *  - Write some components logic
+ *  - Write a few tests to make sure everything is testable and runs smoothly
+ *  - Check what it is you want to refactor
+ *      - Extracting a DeskEditErrorRow from DeskAddRow and DeskEditRow for example
+ *  - Make sure everything is tested before refactoring
+ *      - So make a test to check for the warning in both Create and Edit state
+ *        which creates duplication in my test suite
+ *  - Do the refacto
+ *  - Enjoy green lines
+ *
+ * Duplication in test is less bad that in actual code (IMHO),
+ * In scenario where time is short, I am okay to let it go.
+ * */
+
 function setup() {
   const queryClient = new QueryClient()
 
@@ -82,8 +100,7 @@ test('Desks page allows to edit a desk', async () => {
   expect(button).toBeInTheDocument()
   fireEvent.click(button)
 
-  // Once clicked, we expect 2 inputs to create our new desk:
-  // name, and unique number
+  // Once clicked, we will update the desk's name
   const nameInput = result.getByDisplayValue(/the answer/i)
   const deskName = 'the answer updated'
   fireEvent.change(nameInput, { target: { value: deskName } })
@@ -99,8 +116,59 @@ test('Desks page allows to edit a desk', async () => {
   expect(result.getByTitle(/edit the answer updated/i)).toBeInTheDocument()
 })
 
-// Again, this is not complicated, after validating we wait for the warning to be shown
-test.skip('Desks page disables creating or editing a desk with an already used unique number', () => {})
+test('Desks page disables editing a desk with an already used unique number', async () => {
+  const result = await setupWithLoadedDesks()
+
+  // We expect a button to edit "the answer" desk
+  const button = result.getByTitle(/edit the answer/i)
+  expect(button).toBeInTheDocument()
+  fireEvent.click(button)
+
+  // Once clicked, we change our desk to an already used number
+  const numberInput = result.getByDisplayValue('42')
+  const deskNumber = 47
+  fireEvent.change(numberInput, { target: { value: deskNumber } })
+
+  // We then validate it, and wait for the warning to show
+  const validateButton = result.getByTitle(/validate/i)
+  fireEvent.click(validateButton)
+  const warning = await result.findByText(/Unique number 47 is already taken/i)
+
+  expect(warning).toBeInTheDocument()
+  // We should still be in the edit state, with input and validate button still present
+  expect(validateButton).toBeInTheDocument()
+  expect(numberInput).toBeInTheDocument()
+})
+
+test('Desks page disables creating a desk with an already used unique number', async () => {
+  const result = await setupWithLoadedDesks()
+
+  // We expect a button to add a new desk
+  const button = result.getByText(/add new desk/i)
+  expect(button).toBeInTheDocument()
+  fireEvent.click(button)
+
+  // Once clicked, we expect 2 inputs to create our new desk:
+  // name, and unique number
+  const numberInput = result.getByLabelText(/unique number/i)
+  const nameInput = result.getByLabelText(/name/i)
+  const deskName = 'new desk'
+  // We use an already number to check for the warning
+  const deskNumber = 42
+
+  fireEvent.change(nameInput, { target: { value: deskName } })
+  fireEvent.change(numberInput, { target: { value: deskNumber } })
+
+  // We then validate it, and wait for the warning to show
+  const validateButton = result.getByTitle(/validate/i)
+  fireEvent.click(validateButton)
+  const warning = await result.findByText(/Unique number 42 is already taken/i)
+
+  expect(warning).toBeInTheDocument()
+  // We should still be in the create state, with input and validate button still present
+  expect(validateButton).toBeInTheDocument()
+  expect(numberInput).toBeInTheDocument()
+})
 
 test('Desks page allows to delete a desk', async () => {
   const result = await setupWithLoadedDesks()
