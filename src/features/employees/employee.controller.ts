@@ -4,7 +4,7 @@ import { Employee } from './employee.model'
 export type EmployeeInput = Omit<Employee, 'id'>
 
 export class EmployeeController {
-  private employees: Employee[] = []
+  constructor(private employees: Employee[] = []) {}
 
   getEmployees() {
     return this.employees

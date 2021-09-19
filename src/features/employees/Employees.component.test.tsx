@@ -1,5 +1,5 @@
 import React from 'react'
-import { render } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import { Employees } from './Employees.component'
 import { EmployeeControllerProvider } from './EmployeeController.provider'
 import { EmployeeController, EmployeeInput } from './employee.controller'
@@ -23,7 +23,17 @@ function setup(
   return { ...result, controller }
 }
 
-test('Employees page shows a friendly title and its amazing employees', async () => {
+function setupToEmployeeDetails(
+  employeeIndex: number,
+  employees?: EmployeeInput[],
+) {
+  const result = setup(employees)
+  const selectedEmployee = result.controller.getEmployees()[employeeIndex]
+  fireEvent.click(result.getByText(selectedEmployee.name))
+  return { ...result, selectedEmployee }
+}
+
+test('Employees page shows a friendly title and its amazing employees', () => {
   const result = setup()
 
   expect(
@@ -35,4 +45,30 @@ test('Employees page shows a friendly title and its amazing employees', async ()
   employees.forEach(employee => {
     expect(result.getByText(employee.name)).toBeInTheDocument()
   })
+})
+
+test('Clicking an employee will show its details', () => {
+  const result = setup()
+  const firstEmployee = result.controller.getEmployees()[0]
+
+  fireEvent.click(result.getByText(firstEmployee.name))
+
+  expect(result.getByText(firstEmployee.email)).toBeInTheDocument()
+})
+
+// I don't know if I can test that easily…
+test.skip('On an employee details, should allow to sort desk by drag and drop', async () => {
+  const result = setupToEmployeeDetails(0, [
+    {
+      name: 'Charles',
+      email: 'yes',
+      preferredDesks: [
+        { id: '1', name: 'The one', uniqueNumber: 1 },
+        { id: '2', name: 'The two', uniqueNumber: 2 },
+      ],
+    },
+  ])
+
+  const desk1 = result.getByText('The one')
+  const desk2 = result.getByText('The two')
 })

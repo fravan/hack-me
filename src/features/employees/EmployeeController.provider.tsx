@@ -10,7 +10,18 @@ interface EmployeeControllerProviderProps {
 
 export function EmployeeControllerProvider({
   children,
-  value = new EmployeeController(),
+  value = new EmployeeController([
+    {
+      id: '1',
+      name: 'Charles',
+      email: 'charles@semana.com',
+      preferredDesks: [
+        { id: '1', uniqueNumber: 42, name: 'The answer' },
+        { id: '2', uniqueNumber: 47, name: 'The agent' },
+      ],
+    },
+    { id: '2', name: 'Jean', email: 'jean@semana.com', preferredDesks: [] },
+  ]),
 }: EmployeeControllerProviderProps) {
   const [controller] = React.useState(value)
 
