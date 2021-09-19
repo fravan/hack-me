@@ -16,7 +16,7 @@ const makeGetDesks = (deskController: IDeskController) => async () => {
 const makeDeleteDesk =
   (deskController: IDeskController) => async (id: string) => {
     await delay(1234)
-    deskController.removeDesk(id)
+    deskController.deleteDesk(id)
   }
 
 const makeAddDesk =

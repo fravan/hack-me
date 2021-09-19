@@ -5,7 +5,7 @@ export type DeskInput = Omit<Desk, 'id'>
 
 export interface IDeskController {
   getDesks(): Desk[]
-  removeDesk(id: string): void
+  deleteDesk(id: string): void
   addDesk(payload: DeskInput): Desk[]
   editDesk(id: string, payload: DeskInput): Desk[]
 }
@@ -23,7 +23,7 @@ class DeskController implements IDeskController {
     return this.desks
   }
 
-  removeDesk(id: string) {
+  deleteDesk(id: string) {
     this.desks = this.desks.filter(d => d.id !== id)
   }
 

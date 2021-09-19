@@ -35,7 +35,7 @@ function setup() {
     // the controller is behind a hook, so we do that in our wrapper
     const deskController = useDeskController()
     React.useEffect(() => {
-      deskController.getDesks().forEach(d => deskController.removeDesk(d.id))
+      deskController.getDesks().forEach(d => deskController.deleteDesk(d.id))
 
       deskController.addDesk({ uniqueNumber: 42, name: 'The answer' })
       deskController.addDesk({ uniqueNumber: 47, name: 'The agent' })
