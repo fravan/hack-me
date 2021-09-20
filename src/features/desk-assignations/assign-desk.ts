@@ -26,10 +26,17 @@ export function assignDesk(
 ): AssignationResult[] {
   const ret: AssignationResult[] = []
   const employeesToAssignADeskTo = [...employees].sort((a, b) => {
-    // The algorithm will empty the array as it steps, so we want
-    // employees with preferred desk to be at the end of the array
-    // (they will be processed first)
-    return a.preferredDesks.length - b.preferredDesks.length
+    // We check for empty desks list and force those guys at the
+    // start of the array (processed last)
+    if (a.preferredDesks.length === 0) {
+      return -1
+    }
+    if (b.preferredDesks.length === 0) {
+      return 1
+    }
+    // Otherwise, the one with the biggest list of preferred desk
+    // goes after the other
+    return b.preferredDesks.length - a.preferredDesks.length
   })
   const availableDesks = [...desks]
 

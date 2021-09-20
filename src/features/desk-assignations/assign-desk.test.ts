@@ -60,4 +60,26 @@ describe('Preferred desks', () => {
       desks[2].id,
     )
   })
+
+  test('Employees with a greater list of preferred desks should come after those with only one desk', () => {
+    // I though "Hey, that might be better for everyone?"
+    // Like, if you have 10 preferred desks maybe you can let your most favorite
+    // for another one and have your second most favorite desk.
+    // But then... Is it? Wouldn't that make employees mark only one desk as preferred
+    // to be sure to get it?
+    // Anyway, I will test it, because why not I'm already this late!
+    const employees = createEmployees(3)
+    const desks = createDesks(10)
+    employees[0].preferredDesks = [desks[2]]
+    employees[1].preferredDesks = [desks[2], desks[3], desks[1]]
+    employees[2].preferredDesks = [desks[3]]
+
+    const result = assignDesk(employees, desks)
+    const getAssignedDesk = (employeeIdx: number) =>
+      result.find(r => r.employeeId === employees[employeeIdx].id)!
+
+    expect(getAssignedDesk(0).deskId).toBe(desks[2].id)
+    expect(getAssignedDesk(1).deskId).toBe(desks[1].id)
+    expect(getAssignedDesk(2).deskId).toBe(desks[3].id)
+  })
 })
