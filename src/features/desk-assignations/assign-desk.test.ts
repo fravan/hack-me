@@ -35,4 +35,29 @@ describe('Basic functionalities', () => {
     expect(result.length).toBe(2)
     expect(result.every(r => r.deskId != null)).toBe(true)
   })
+
+  test('It should also return employees without a desk', () => {
+    const employees = createEmployees(3)
+    const desks = createDesks(2)
+
+    const result = assignDesk(employees, desks)
+    // We want as many results as we have employee
+    expect(result.length).toBe(3)
+    // And one of them should be deskless...
+    expect(result.filter(r => r.deskId == null).length).toBe(1)
+  })
+})
+
+describe('Preferred desks', () => {
+  test('An employee with a preferred desk should have it if possible', () => {
+    const employees = createEmployees(2)
+    const desks = createDesks(10)
+    employees[0].preferredDesks = [desks[2]]
+
+    const result = assignDesk(employees, desks)
+
+    expect(result.find(r => r.employeeId === employees[0].id)?.deskId).toBe(
+      desks[2].id,
+    )
+  })
 })
