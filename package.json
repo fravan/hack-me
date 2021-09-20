@@ -20,6 +20,7 @@
     "web-vitals": "^0.2.4"
   },
   "scripts": {
+    "prestart": "npm run css:build",
     "start": "react-scripts start",
     "prebuild": "npm run css:build",
     "build": "react-scripts build",
