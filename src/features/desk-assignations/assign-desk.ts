@@ -1,22 +1,38 @@
 import { Desk } from '../desks/desk.model'
 import { Employee } from '../employees/employee.model'
+import { Zone } from '../zones/zone.model'
 
 export interface AssignationResult {
   employeeId: string
   deskId: string | null
 }
 
-function getDeskId(desks: Desk[], preferredDesks: Desk[] = []): string | null {
+function getDeskId(
+  desks: Desk[],
+  preferredDesks: Array<Desk | Zone> = [],
+): string | null {
   if (desks.length === 0) {
     return null
   }
-  for (let i = 0; i < preferredDesks.length; i++) {
-    const preferredDesk = preferredDesks[i]
-    const preferredDeskIdx = desks.findIndex(d => d.id === preferredDesk.id)
-    if (preferredDeskIdx !== -1) {
-      return desks.splice(preferredDeskIdx, 1)[0].id
+  if (preferredDesks.length > 0) {
+    const realPreferredDesks = preferredDesks.reduce<Desk[]>(
+      (acc: Desk[], curr: Desk | Zone) => {
+        if (curr.type === 'desk') {
+          return [...acc, curr]
+        }
+        return [...acc, ...curr.desks]
+      },
+      [],
+    )
+    for (let i = 0; i < realPreferredDesks.length; i++) {
+      const preferredDesk = realPreferredDesks[i]
+      const preferredDeskIdx = desks.findIndex(d => d.id === preferredDesk.id)
+      if (preferredDeskIdx !== -1) {
+        return desks.splice(preferredDeskIdx, 1)[0].id
+      }
     }
   }
+
   return desks.pop()!.id
 }
 

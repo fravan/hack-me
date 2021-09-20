@@ -1,5 +1,6 @@
-import { Desk } from '../desks/desk.model'
+import { Desk, makeDesk } from '../desks/desk.model'
 import { Employee } from '../employees/employee.model'
+import { makeZone } from '../zones/zone.model'
 import { assignDesk } from './assign-desk'
 
 const createEmployee = (id: string): Employee => ({
@@ -15,7 +16,8 @@ const createEmployees = (amount: number): Employee[] => {
   }
   return ret
 }
-const createDesk = (id: string): Desk => ({ id, name: '', uniqueNumber: 0 })
+const createDesk = (id: string): Desk =>
+  makeDesk({ id, name: '', uniqueNumber: 0 })
 const createDesks = (amount: number): Desk[] => {
   const ret: Desk[] = []
   for (let i = 0; i < amount; i++) {
@@ -72,6 +74,30 @@ describe('Preferred desks', () => {
     const desks = createDesks(10)
     employees[0].preferredDesks = [desks[2]]
     employees[1].preferredDesks = [desks[2], desks[3], desks[1]]
+    employees[2].preferredDesks = [desks[3]]
+
+    const result = assignDesk(employees, desks)
+    const getAssignedDesk = (employeeIdx: number) =>
+      result.find(r => r.employeeId === employees[employeeIdx].id)!
+
+    expect(getAssignedDesk(0).deskId).toBe(desks[2].id)
+    expect(getAssignedDesk(1).deskId).toBe(desks[1].id)
+    expect(getAssignedDesk(2).deskId).toBe(desks[3].id)
+  })
+})
+
+describe('Zone', () => {
+  test('Zone are just a bag of desks for the algorithm', () => {
+    // This is the same test as : "Employees with a greater list of preferred desks should come after those with only one desk"
+    // just that some of those desks have been wrapped into a zone
+    const employees = createEmployees(3)
+    const desks = createDesks(10)
+    const zone = makeZone({
+      id: 'zone-1',
+      desks: [desks[2], desks[3]],
+    })
+    employees[0].preferredDesks = [desks[2]]
+    employees[1].preferredDesks = [zone, desks[1]]
     employees[2].preferredDesks = [desks[3]]
 
     const result = assignDesk(employees, desks)

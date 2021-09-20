@@ -3,6 +3,7 @@ import { fireEvent, render } from '@testing-library/react'
 import { Employees } from './Employees.component'
 import { EmployeeControllerProvider } from './EmployeeController.provider'
 import { EmployeeController, EmployeeInput } from './employee.controller'
+import { makeDesk } from '../desks/desk.model'
 
 function setup(
   employees: EmployeeInput[] = [
@@ -63,8 +64,8 @@ test.skip('On an employee details, should allow to sort desk by drag and drop', 
       name: 'Charles',
       email: 'yes',
       preferredDesks: [
-        { id: '1', name: 'The one', uniqueNumber: 1 },
-        { id: '2', name: 'The two', uniqueNumber: 2 },
+        makeDesk({ id: '1', name: 'The one', uniqueNumber: 1 }),
+        makeDesk({ id: '2', name: 'The two', uniqueNumber: 2 }),
       ],
     },
   ])

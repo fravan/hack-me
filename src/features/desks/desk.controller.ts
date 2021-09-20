@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
-import { Desk } from './desk.model'
+import { Desk, makeDesk } from './desk.model'
 
-export type DeskInput = Omit<Desk, 'id'>
+export type DeskInput = Omit<Desk, 'type' | 'id'>
 
 export interface IDeskController {
   getDesks(): Desk[]
@@ -29,7 +29,7 @@ class DeskController implements IDeskController {
 
   addDesk(payload: DeskInput) {
     this.checkDeskNumberUniqueness(payload.uniqueNumber)
-    this.desks.push({ ...payload, id: uuidv4() })
+    this.desks.push(makeDesk({ ...payload, id: uuidv4() }))
     return this.desks
   }
 
@@ -38,7 +38,7 @@ class DeskController implements IDeskController {
 
     const idx = this.desks.findIndex(d => d.id === id)
     if (idx === -1) {
-      this.desks.push({ ...payload, id: uuidv4() })
+      this.desks.push(makeDesk({ ...payload, id: uuidv4() }))
     } else {
       const desk = this.desks[idx]
       desk.name = payload.name

@@ -1,4 +1,5 @@
 import React from 'react'
+import { makeDesk } from '../desks/desk.model'
 import { EmployeeController } from './employee.controller'
 
 const EmployeeControllerContext = React.createContext(new EmployeeController())
@@ -16,8 +17,8 @@ export function EmployeeControllerProvider({
       name: 'Charles',
       email: 'charles@semana.com',
       preferredDesks: [
-        { id: '1', uniqueNumber: 42, name: 'The answer' },
-        { id: '2', uniqueNumber: 47, name: 'The agent' },
+        makeDesk({ id: '1', uniqueNumber: 42, name: 'The answer' }),
+        makeDesk({ id: '2', uniqueNumber: 47, name: 'The agent' }),
       ],
     },
     { id: '2', name: 'Jean', email: 'jean@semana.com', preferredDesks: [] },

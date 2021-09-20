@@ -16,11 +16,7 @@ function EmployeeItem({
     .with('text-primary bg-primary/10', employee.id === selectedEmployee?.id)
     .build()
   return (
-    <li
-      className={className}
-      onClick={() => onSelect(employee)}
-      key={employee.id}
-    >
+    <li className={className} onClick={() => onSelect(employee)}>
       {employee.name}
     </li>
   )
@@ -38,7 +34,7 @@ export function EmployeeList(props: EmployeeListProps) {
   return (
     <ul className="flex-none max-w-max w-full">
       {employees.map(e => (
-        <EmployeeItem {...props} employee={e} />
+        <EmployeeItem key={e.id} {...props} employee={e} />
       ))}
     </ul>
   )
